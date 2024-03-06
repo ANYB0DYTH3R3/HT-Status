@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HT-Status</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        canvas {
+            max-width: 800px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>HT-Status - Website Uptime Monitoring</h1>
+    
+    <canvas id="uptimeChart"></canvas>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Replace these URLs with the websites you want to monitor
+        const websitesToMonitor = [
+            'https://example.com',
+            'https://example2.com',
+            // Add more URLs as needed
+        ];
+
+        const ctx = document.getElementById('uptimeChart').getContext('2d');
+        const uptimeChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: websitesToMonitor.map((url, index) => ({
+                    label: `Website ${index + 1}`,
+                    borderColor: getRandomColor(),
+                    data: [],
+                    fill: false,
+                })),
+            },
+            options: {
+                scales: {
+                    x: {
+                        type: 'linear',
+                        position: 'bottom',
+                    },
+                    y: {
+                        type: 'linear',
+                        position: 'left',
+                        max: 100,
+                        min: 0,
+                    },
+                },
+            },
+        });
+
+        function getRandomColor() {
+            const letters = '0123456789ABCDEF';
+            let color = '#';
+            for (let i = 0; i < 6; i++) {
+                color += letters[Math.floor(Math.random() * 16)];
+            }
+            return color;
+        }
+
+        async function checkUptime() {
+            const timestamp = Date.now();
+            uptimeChart.data.labels.push(timestamp);
+
+            for (const [index, url] of websitesToMonitor.entries()) {
+                try {
+                    const response = await fetch(url);
+                    const status = response.ok ? 100 : 0;
+                    uptimeChart.data.datasets[index].data.push(status);
+                } catch (error) {
+                    console.error(`Error checking ${url}:`, error);
+                    uptimeChart.data.datasets[index].data.push(0);
+                }
+            }
+
+            // Update the chart with new data
+            uptimeChart.update();
+
+            // Schedule the next check in 1 minute (adjust as needed)
+            setTimeout(checkUptime, 60000);
+        }
+
+        // Initial check
+        checkUptime();
+    </script>
+</body>
+</html>
