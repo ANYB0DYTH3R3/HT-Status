@@ -42,12 +42,6 @@
         .green { background-color: #4CAF50; }
         .yellow { background-color: #FFD700; }
         .red { background-color: #FF6347; }
-
-        a {
-            color: #007BFF;
-            text-decoration: none;
-            font-weight: bold;
-        }
     </style>
 </head>
 <body>
@@ -58,51 +52,46 @@
     <script>
         // Replace these names and URLs with the websites you want to monitor
         const websitesToMonitor = [
-            { name: 'Main Site', url: 'not-games.netlify.app' },
-            { name: 'Beta Site', url: 'https://huntervtharp1018.wixsite.com/unblocked-games/' },
+            { name: 'Not-games.netlify.app', url: 'not-games.netlify.app' },
+            { name: 'Coding club site', url: 'tchs-coding-club.site' },
             // Add more names and URLs as needed
         ];
 
         const sitesContainer = document.getElementById('sites-container');
 
         function updateSites() {
-    websitesToMonitor.forEach(async (site) => {
-        const siteContainer = document.createElement('div');
-        siteContainer.className = 'site-container';
+            websitesToMonitor.forEach(async (site) => {
+                const siteContainer = document.createElement('div');
+                siteContainer.className = 'site-container';
 
-        const siteName = document.createElement('div');
-        siteName.className = 'site-name';
-        siteName.textContent = site.name;
+                const siteName = document.createElement('div');
+                siteName.className = 'site-name';
+                siteName.textContent = site.name;
 
-        const statusIndicator = document.createElement('div');
-        statusIndicator.className = 'status-indicator';
+                const statusIndicator = document.createElement('div');
+                statusIndicator.className = 'status-indicator';
 
-        try {
-            const response = await fetch(site.url);
-            if (response.ok) {
-                statusIndicator.classList.add('green');
-            } else {
-                statusIndicator.classList.add('red');
-            }
-        } catch (error) {
-            console.error(`Error checking ${site.url}:`, error);
-            statusIndicator.classList.add('yellow');
+                try {
+                    const response = await fetch(site.url);
+                    if (response.ok) {
+                        statusIndicator.classList.add('green');
+                    } else {
+                        statusIndicator.classList.add('red');
+                    }
+                } catch (error) {
+                    console.error(`Error checking ${site.url}:`, error);
+                    statusIndicator.classList.add('yellow');
+                }
+
+                siteContainer.appendChild(siteName);
+                siteContainer.appendChild(statusIndicator);
+
+                sitesContainer.appendChild(siteContainer);
+            });
+
+            // Schedule the next update in 5 minutes (adjust as needed)
+            setTimeout(updateSites, 300000);
         }
-
-        const siteLink = document.createElement('a');
-        siteLink.href = site.url;  // Set the correct URL here
-        siteLink.textContent = 'Visit Site';
-
-        siteContainer.appendChild(siteName);
-        siteContainer.appendChild(statusIndicator);
-        siteContainer.appendChild(siteLink);
-
-        sitesContainer.appendChild(siteContainer);
-    });
-
-    // Schedule the next update in 5 minutes (adjust as needed)
-    setTimeout(updateSites, 300000);
-}
 
         // Initial update
         updateSites();
