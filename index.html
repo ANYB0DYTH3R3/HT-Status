@@ -66,43 +66,43 @@
         const sitesContainer = document.getElementById('sites-container');
 
         function updateSites() {
-            websitesToMonitor.forEach(async (site) => {
-                const siteContainer = document.createElement('div');
-                siteContainer.className = 'site-container';
+    websitesToMonitor.forEach(async (site) => {
+        const siteContainer = document.createElement('div');
+        siteContainer.className = 'site-container';
 
-                const siteName = document.createElement('div');
-                siteName.className = 'site-name';
-                siteName.textContent = site.name;
+        const siteName = document.createElement('div');
+        siteName.className = 'site-name';
+        siteName.textContent = site.name;
 
-                const statusIndicator = document.createElement('div');
-                statusIndicator.className = 'status-indicator';
+        const statusIndicator = document.createElement('div');
+        statusIndicator.className = 'status-indicator';
 
-                try {
-                    const response = await fetch(site.url);
-                    if (response.ok) {
-                        statusIndicator.classList.add('green');
-                    } else {
-                        statusIndicator.classList.add('red');
-                    }
-                } catch (error) {
-                    console.error(`Error checking ${site.url}:`, error);
-                    statusIndicator.classList.add('yellow');
-                }
-
-                const siteLink = document.createElement('a');
-                siteLink.href = site.url;
-                siteLink.textContent = 'Visit Site';
-
-                siteContainer.appendChild(siteName);
-                siteContainer.appendChild(statusIndicator);
-                siteContainer.appendChild(siteLink);
-
-                sitesContainer.appendChild(siteContainer);
-            });
-
-            // Schedule the next update in 5 minutes (adjust as needed)
-            setTimeout(updateSites, 300000);
+        try {
+            const response = await fetch(site.url);
+            if (response.ok) {
+                statusIndicator.classList.add('green');
+            } else {
+                statusIndicator.classList.add('red');
+            }
+        } catch (error) {
+            console.error(`Error checking ${site.url}:`, error);
+            statusIndicator.classList.add('yellow');
         }
+
+        const siteLink = document.createElement('a');
+        siteLink.href = site.url;  // Set the correct URL here
+        siteLink.textContent = 'Visit Site';
+
+        siteContainer.appendChild(siteName);
+        siteContainer.appendChild(statusIndicator);
+        siteContainer.appendChild(siteLink);
+
+        sitesContainer.appendChild(siteContainer);
+    });
+
+    // Schedule the next update in 5 minutes (adjust as needed)
+    setTimeout(updateSites, 300000);
+}
 
         // Initial update
         updateSites();
