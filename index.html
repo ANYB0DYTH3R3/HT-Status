@@ -52,8 +52,8 @@
     <script>
         // Replace these names and URLs with the websites you want to monitor
         const websitesToMonitor = [
-            { name: 'Not-Games', url: 'https://not-games.netlify.app' },
-            { name: 'Coding club site', url: 'https://tchs-coding-club.site' },
+            { name: 'Not games', url: 'https://not-games.netlify.app' },
+            { name: 'Codig club', url: 'https://tchs-coding-club.site' },
             // Add more names and URLs as needed
         ];
 
@@ -78,10 +78,12 @@
                         statusIndicator.classList.add('green');
                     } else {
                         statusIndicator.classList.add('red');
+                        siteName.textContent += ' - Error';
                     }
                 } catch (error) {
                     console.error(`Error checking ${site.url}:`, error);
-                    statusIndicator.classList.add('yellow');
+                    statusIndicator.classList.add('red');
+                    siteName.textContent += ' - Network Error';
                 }
 
                 siteContainer.appendChild(siteName);
