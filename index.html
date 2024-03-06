@@ -3,111 +3,109 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HT-Status</title>
+    <title>HT-Status Dashboard</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 20px;
+            background-color: #f4f4f4;
         }
 
-        canvas {
-            max-width: 800px;
-            margin: 20px 0;
+        h1 {
+            color: #333;
+        }
+
+        .site-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .site-name {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .status-indicator {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            margin-left: 10px;
+        }
+
+        .green { background-color: #4CAF50; }
+        .yellow { background-color: #FFD700; }
+        .red { background-color: #FF6347; }
+
+        a {
+            color: #007BFF;
+            text-decoration: none;
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
-    <h1>HT-Status - Website Uptime Monitoring</h1>
+    <h1>HT-Status Dashboard</h1>
     
-    <div id="graphs-container"></div>
+    <div id="sites-container"></div>
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         // Replace these names and URLs with the websites you want to monitor
         const websitesToMonitor = [
-            { name: 'Main Site', url: 'Not-games.netlify.app' },
+            { name: 'Main Site', url: 'not-games.netlify.app' },
             { name: 'Beta Site', url: 'https://huntervtharp1018.wixsite.com/unblocked-games/' },
             // Add more names and URLs as needed
         ];
 
-        const graphContainer = document.getElementById('graphs-container');
-        const graphs = [];
+        const sitesContainer = document.getElementById('sites-container');
 
-        websitesToMonitor.forEach((site, index) => {
-            const graphCanvas = document.createElement('canvas');
-            graphCanvas.id = `uptimeChart${index}`;
-            graphCanvas.width = 800;
-            graphCanvas.height = 400;
-            graphContainer.appendChild(graphCanvas);
+        function updateSites() {
+            websitesToMonitor.forEach(async (site) => {
+                const siteContainer = document.createElement('div');
+                siteContainer.className = 'site-container';
 
-            const ctx = graphCanvas.getContext('2d');
-            const graph = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: [],
-                    datasets: [{
-                        label: site.name,
-                        borderColor: 'rgba(75, 192, 192, 1)',
-                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                        data: [],
-                        fill: false,
-                    }],
-                },
-                options: {
-                    scales: {
-                        x: {
-                            type: 'linear',
-                            position: 'bottom',
-                        },
-                        y: {
-                            type: 'linear',
-                            position: 'left',
-                            max: 100,
-                            min: 0,
-                        },
-                    },
-                },
-            });
+                const siteName = document.createElement('div');
+                siteName.className = 'site-name';
+                siteName.textContent = site.name;
 
-            graphs.push({
-                chart: graph,
-                site: site,
-            });
-        });
-
-        function updateGraphs() {
-            const timestamp = Date.now();
-
-            graphs.forEach(async (graph, index) => {
-                const { site, chart } = graph;
+                const statusIndicator = document.createElement('div');
+                statusIndicator.className = 'status-indicator';
 
                 try {
                     const response = await fetch(site.url);
-                    const status = response.ok ? 100 : 0;
-                    chart.data.labels.push(timestamp);
-                    chart.data.datasets[0].data.push(status);
+                    if (response.ok) {
+                        statusIndicator.classList.add('green');
+                    } else {
+                        statusIndicator.classList.add('red');
+                    }
                 } catch (error) {
                     console.error(`Error checking ${site.url}:`, error);
-                    chart.data.labels.push(timestamp);
-                    chart.data.datasets[0].data.push(0);
+                    statusIndicator.classList.add('yellow');
                 }
 
-                // Trim excess data to keep the graph clean
-                if (chart.data.labels.length > 20) {
-                    chart.data.labels.shift();
-                    chart.data.datasets[0].data.shift();
-                }
+                const siteLink = document.createElement('a');
+                siteLink.href = site.url;
+                siteLink.textContent = 'Visit Site';
 
-                // Update the chart with new data
-                chart.update();
+                siteContainer.appendChild(siteName);
+                siteContainer.appendChild(statusIndicator);
+                siteContainer.appendChild(siteLink);
+
+                sitesContainer.appendChild(siteContainer);
             });
 
             // Schedule the next update in 5 minutes (adjust as needed)
-            setTimeout(updateGraphs, 300000);
+            setTimeout(updateSites, 300000);
         }
 
         // Initial update
-        updateGraphs();
+        updateSites();
     </script>
 </body>
 </html>
