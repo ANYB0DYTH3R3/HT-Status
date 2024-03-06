@@ -19,78 +19,95 @@
 <body>
     <h1>HT-Status - Website Uptime Monitoring</h1>
     
-    <canvas id="uptimeChart"></canvas>
+    <div id="graphs-container"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        // Replace these URLs with the websites you want to monitor
+        // Replace these names and URLs with the websites you want to monitor
         const websitesToMonitor = [
-            'not-games.netlify.app',
-            'https://huntervtharp1018.wixsite.com/unblocked-games/',
-            // Add more URLs as needed
+            { name: 'Main Site', url: 'Not-games.netlify.app' },
+            { name: 'Beta Site', url: 'https://huntervtharp1018.wixsite.com/unblocked-games/' },
+            // Add more names and URLs as needed
         ];
 
-        const ctx = document.getElementById('uptimeChart').getContext('2d');
-        const uptimeChart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: [],
-                datasets: websitesToMonitor.map((url, index) => ({
-                    label: `Website ${index + 1}`,
-                    borderColor: getRandomColor(),
-                    data: [],
-                    fill: false,
-                })),
-            },
-            options: {
-                scales: {
-                    x: {
-                        type: 'linear',
-                        position: 'bottom',
-                    },
-                    y: {
-                        type: 'linear',
-                        position: 'left',
-                        max: 100,
-                        min: 0,
+        const graphContainer = document.getElementById('graphs-container');
+        const graphs = [];
+
+        websitesToMonitor.forEach((site, index) => {
+            const graphCanvas = document.createElement('canvas');
+            graphCanvas.id = `uptimeChart${index}`;
+            graphCanvas.width = 800;
+            graphCanvas.height = 400;
+            graphContainer.appendChild(graphCanvas);
+
+            const ctx = graphCanvas.getContext('2d');
+            const graph = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: site.name,
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        data: [],
+                        fill: false,
+                    }],
+                },
+                options: {
+                    scales: {
+                        x: {
+                            type: 'linear',
+                            position: 'bottom',
+                        },
+                        y: {
+                            type: 'linear',
+                            position: 'left',
+                            max: 100,
+                            min: 0,
+                        },
                     },
                 },
-            },
+            });
+
+            graphs.push({
+                chart: graph,
+                site: site,
+            });
         });
 
-        function getRandomColor() {
-            const letters = '0123456789ABCDEF';
-            let color = '#';
-            for (let i = 0; i < 6; i++) {
-                color += letters[Math.floor(Math.random() * 16)];
-            }
-            return color;
-        }
-
-        async function checkUptime() {
+        function updateGraphs() {
             const timestamp = Date.now();
-            uptimeChart.data.labels.push(timestamp);
 
-            for (const [index, url] of websitesToMonitor.entries()) {
+            graphs.forEach(async (graph, index) => {
+                const { site, chart } = graph;
+
                 try {
-                    const response = await fetch(url);
+                    const response = await fetch(site.url);
                     const status = response.ok ? 100 : 0;
-                    uptimeChart.data.datasets[index].data.push(status);
+                    chart.data.labels.push(timestamp);
+                    chart.data.datasets[0].data.push(status);
                 } catch (error) {
-                    console.error(`Error checking ${url}:`, error);
-                    uptimeChart.data.datasets[index].data.push(0);
+                    console.error(`Error checking ${site.url}:`, error);
+                    chart.data.labels.push(timestamp);
+                    chart.data.datasets[0].data.push(0);
                 }
-            }
 
-            // Update the chart with new data
-            uptimeChart.update();
+                // Trim excess data to keep the graph clean
+                if (chart.data.labels.length > 20) {
+                    chart.data.labels.shift();
+                    chart.data.datasets[0].data.shift();
+                }
 
-            // Schedule the next check in 1 minute (adjust as needed)
-            setTimeout(checkUptime, 60000);
+                // Update the chart with new data
+                chart.update();
+            });
+
+            // Schedule the next update in 5 minutes (adjust as needed)
+            setTimeout(updateGraphs, 300000);
         }
 
-        // Initial check
-        checkUptime();
+        // Initial update
+        updateGraphs();
     </script>
 </body>
 </html>
